@@ -1,42 +1,14 @@
+from collections import Counter
+from functools import reduce
 from matrix import Matrix
-from typing import List
-
-def read_matrix_from(input) -> Matrix:
-    matrix = Matrix()
-
-    with open(input) as file:
-        for line in file:
-            matrix.insert([item for item in line.rstrip().split(' ') if item])
-
-    return matrix
-
-def frequency(value: int, items: List[int]) -> int:
-    count = 0
-    
-    for item in items:
-        if item == value:
-            count += 1
-
-    return count
-    
-
 
 def total_distance(input: str) -> int:
-    matrix = read_matrix_from(input)
-    distance = 0
+    matrix = Matrix(input)
 
-    matrix.sort()
-
-    while items := matrix.pop_mins():
-        distance += abs(items[0] - items[1])
-
-    return distance
+    return reduce(lambda distance, items: distance + abs(items[0] - items[1]), matrix.iter_mins(), 0)
 
 def similarity_score(input: str) -> int:
-    score = 0
-    matrix = read_matrix_from(input)
+    matrix = Matrix(input)
+    rhs_counter = Counter(matrix.rhs)
 
-    for item in matrix.lhs:
-        score += item * frequency(item, matrix.rhs)
-
-    return score
+    return reduce(lambda score, item: score + (item * rhs_counter[item]), matrix.lhs, 0)
