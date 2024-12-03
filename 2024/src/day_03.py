@@ -1,22 +1,28 @@
-from parsers.day03 import parse_from_file
+from parsers.day03 import Operation, parse_from_file
 
 
 def process_mul_instruction(input: str) -> int:
     operations = parse_from_file(input)
     return sum(operation.x * operation.y for operation in operations)
 
-def process_all_instructions(input: str) -> int:
-    enabled = True
-    summation = 0
-    operations = parse_from_file(input)
+class SkipMul:
+    def __init__(self):
+        self.disabled = False
 
-    for operation in operations:
+    def __call__(self, operation: Operation) -> bool:
         if operation.instruction == 'do':
-            enabled = True
+            self.disabled = False
         elif operation.instruction == "don't":
-            enabled = False
-        elif operation.instruction == 'mul' and enabled:
-            summation += operation.x * operation.y
+            self.disabled = True
+        elif operation.instruction == 'mul':
+             return self.disabled
+        
+        return True
+        
 
-    return summation
+def process_all_instructions(input: str) -> int:
+    operations = parse_from_file(input)
+    skip = SkipMul()
+    
+    return sum(operation.x * operation.y for operation in operations if not skip(operation))
         
